@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">LCLearnDemo</string>
+    <string name="main_view_title">Mark Doc</string>
+    <string name="main_view_catalog">浏览Docs</string>
+    <string name="main_view_no_file_exist">似乎还没有doc，试着创建一个吧~</string>
+    <string name="text_editor_open">打开</string>
+    <string name="text_editor_create">新建</string>
+    <string name="text_editor_title_hint">请输入标题</string>
+    <string name="text_editor_content_hint">请输入文本</string>
+    <string name="text_editor_save">保存</string>
+    <string name="text_editor_export">导出</string>
+    <string name="text_editor_delete">删除</string>
+    <string name="back">返回</string>
+
+    <string name="text_file_root_dir">saved_markdoc</string>
+    <string name="text_file_ext">.mkd</string>
+</resources>
