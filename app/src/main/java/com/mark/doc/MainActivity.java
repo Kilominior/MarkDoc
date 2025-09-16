@@ -8,23 +8,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
     private Context context;
     private LayoutInflater inflater;
-    private RecyclerView titleView;
+    private LinearLayout titleView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        titleView = (RecyclerView) findViewById(R.id.recyclerView_title_list);
+        titleView = (LinearLayout) findViewById(R.id.linearLayout_title_list);
         context = getApplicationContext();
         inflater = getLayoutInflater();
         TextFileManager.GetInstance().Init(context);
@@ -34,60 +32,74 @@ public class MainActivity extends Activity {
             IntentToTextEditor("");
         });
 
-        RefreshTitleView();
+        UpdateTitleView();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        RefreshTitleView();
+        UpdateTitleView();
     }
 
-    private void RefreshTitleView() {
-        List<String> titleList = TextFileManager.GetInstance().GetTitleList();
-        if (titleList.isEmpty()) {
-            View view = inflater.inflate(R.layout.text_file_no_file_exist_hint, titleView, true);
+    private void UpdateTitleView() {
+        if (TryShowNoDocHint()) {
             return;
         }
 
-        // 存在现有的文本文件
-        ArrayList<View> viewList = new ArrayList<>(titleList.size());
-        for (String title: titleList)
-        {
-            viewList.add(CreateTitleCellView(title));
+        ClearTitleView();
+        List<String> titleList = TextFileManager.GetInstance().GetTitleList();
+        for (String title: titleList) {
+            CreateTitleCellView(title);
         }
-
-        titleView.addTouchables(viewList);
     }
 
-    private View CreateTitleCellView(String title)
-    {
-        View view = inflater.inflate(R.layout.title_cell_view, titleView);
+    /**
+     * 尝试显示“暂无Doc”提示
+     * @return true：已显示提示
+     */
+    private boolean TryShowNoDocHint() {
+        if (TextFileManager.GetInstance().IsTitleListEmpty()) {
+            ClearTitleView();
+            View noFileExistView = inflater.inflate(R.layout.text_file_no_file_exist_hint, titleView, true);
+            return true;
+        }
+        return false;
+    }
 
-        TextView titleTextView = view.findViewById(R.id.text_title);
+    private void ClearTitleView() {
+        if (titleView.getChildCount() > 0) {
+            titleView.removeAllViews();
+        }
+    }
+
+    private void CreateTitleCellView(String title) {
+        View titleCellView = inflater.inflate(R.layout.title_cell_view, titleView, false);
+        TextView titleTextView = titleCellView.findViewById(R.id.text_title);
         titleTextView.setText(title);
 
-        Button openButton = view.findViewById(R.id.button_open);
+        Button openButton = titleCellView.findViewById(R.id.button_open);
         openButton.setOnClickListener(v -> {
             IntentToTextEditor(title);
         });
 
-        Button deleteButton = view.findViewById(R.id.button_delete);
+        Button deleteButton = titleCellView.findViewById(R.id.button_delete);
         deleteButton.setOnClickListener(v -> {
             if (TextFileManager.GetInstance().DeleteFile(title)) {
-                titleView.removeView(view);
+                titleView.removeView(titleCellView);
+                TryShowNoDocHint();
             }
         });
 
-        return view;
+        titleView.addView(titleCellView);
     }
 
-    private void IntentToTextEditor(String title)
-    {
+    private void IntentToTextEditor(String title) {
         Intent intent = new Intent();
         ComponentName textEditorName = new ComponentName("com.mark.doc", "com.mark.doc.TextEditorActivity");
         intent.setComponent(textEditorName);
-        intent.putExtra("title", title);
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, title);
         startActivity(intent);
     }
 }

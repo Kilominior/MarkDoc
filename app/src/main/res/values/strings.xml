@@ -14,4 +14,8 @@
 
     <string name="text_file_root_dir">saved_markdoc</string>
     <string name="text_file_ext">.mkd</string>
+    <string name="text_file_default_title">未命名Doc</string>
+    <string name="text_file_postfix_left">_(</string>
+    <string name="text_file_postfix_right">)</string>
+    <integer name="text_file_postfix_origin_index">1</integer>
 </resources>
